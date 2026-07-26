@@ -29,7 +29,25 @@ def save_tasks():
     with open("tasks.json", "w", encoding="utf-8") as file:               #open another file for taksks saving 
         json.dump(data, file, ensure_ascii=False)                         #make it flexible for russian alphabet
 
-def load_tasks():
+
+def toggle_completed_task():                                              #completed task function 
+   selected_task = tasks_list.curselection()
+
+   if selected_task:
+      index = selected_task[0]
+      task = tasks_list.get(index)
+
+      if task.startswith("✓ "):
+         task = task[2:]
+      else:
+         task = "✓ " + task 
+      tasks_list.delete(index)      
+      tasks_list.insert(index, task)
+      tasks_list.selection_set(index)
+
+      save_tasks()
+
+def load_tasks():                                       #function for tasks loading when u start the app
     tasks_list.delete(0, tk.END)
 
     data = get_all_tasks()
@@ -38,7 +56,7 @@ def load_tasks():
     for task in tasks:
         tasks_list.insert(tk.END, task)
 
-def change_period(selected_period):
+def change_period(selected_period):                     
     title.config(text=f"{selected_period} tasks")
     load_tasks()
 
@@ -117,7 +135,15 @@ delete_button = tk.Button(     #delete button
 )
 delete_button.pack(pady=10)
 
-exit_button = tk.Button(
+complete_button = tk.Button(     #complete button
+   window,
+   text='Mark as completed task',
+   font=('Arial', 14),
+   command=toggle_completed_task
+)
+complete_button.pack(pady=5)
+
+exit_button = tk.Button(           #exit button
     window,
     text="exit",
     font=('Arial', 11),
