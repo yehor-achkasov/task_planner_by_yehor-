@@ -2,22 +2,45 @@ import tkinter as tk           #import tkinter
 
 import json                     #stuff for saving files 
 
-def save_tasks():                                             #function for tasks saving 
-   tasks = tasks_list.get(0, tk.END)
+def get_all_tasks():             #separate tasks 
+   empty_data = {
+      "Day": [],
+      "Week": [],
+      "Month": [],
+      "Year": []
+   }
+   try:                                                    
+      with open('tasks.json', "r", encoding='utf-8') as file:          
+         data = json.load(file)
 
-   with open('tasks.json', "w", encoding='utf-8') as file:    #open another file for saving 
-      json.dump(tasks, file, ensure_ascii=False)              #make ts flexible for other alphabets 
+         if isinstance(data, list):
+            empty_data['Day'] = data 
+            return empty_data
+         return data 
+   except FileNotFoundError:
+      return empty_data
+   
+   
+def save_tasks():
+    data = get_all_tasks()
+
+    data[current_period.get()] = list(tasks_list.get(0, tk.END))
+
+    with open("tasks.json", "w", encoding="utf-8") as file:               #open another file for taksks saving 
+        json.dump(data, file, ensure_ascii=False)                         #make it flexible for russian alphabet
 
 def load_tasks():
-   try:                                                    #try to start code 
-      with open('tasks.json', 'r', encoding='utf-8') as file:  #'r' means 'open file for reading'
-         tasks = json.load(file)                     #checking the tasks from tasks.json 
-        
-         for task in tasks:
-          tasks_list.insert(tk.END, task)            #back stuff to listbox 
+    tasks_list.delete(0, tk.END)
 
-   except FileNotFoundError:                         #just work anyway
-      pass 
+    data = get_all_tasks()
+    tasks = data.get(current_period.get(), [])
+
+    for task in tasks:
+        tasks_list.insert(tk.END, task)
+
+def change_period(selected_period):
+    title.config(text=f"{selected_period} tasks")
+    load_tasks()
 
 def add_task():                                       #function for tasks 
     user_text = task_input.get()
@@ -48,6 +71,20 @@ title = tk.Label(              #text in the window
 )
 title.pack(pady=25)
 
+current_period = tk.StringVar(value="Day")
+
+period_menu = tk.OptionMenu(
+    window,
+    current_period,
+    "Day",
+    "Week",
+    "Month",
+    "Year",
+    command=change_period
+)
+period_menu.pack(pady=5)
+
+
 task_input = tk.Entry(          #add the entry 
     window,
     font=('Arial', 14),
@@ -65,7 +102,7 @@ button.pack(pady=10)           #distence between text/button and walls
 
 tasks_list = tk.Listbox(       #add listbox
     window,
-    font=('Arial, 14'),
+    font=('Arial', '14'),
     width=35,
     height=15
 )
