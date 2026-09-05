@@ -84,13 +84,17 @@ def toggle_completed_task():                                       #function for
         save_tasks()
 
 
-task_input = Entry(                                             #entry squere 
+task_input = Entry(
     window,
     font=("Inter", 15),
     fg="#1F2837",
     bg="#FFFFFF",
     bd=0,
-    highlightthickness=0
+    highlightthickness=0,
+    insertbackground="#4F46E5",
+    insertwidth=2,
+    insertontime=500,
+    insertofftime=500
 )
 
 task_input.place(
