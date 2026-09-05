@@ -1,8 +1,9 @@
 import json
 from pathlib import Path
-from tkinter import Entry, Listbox
+from tkinter import Entry, Listbox, OptionMenu, StringVar
 
 from gui import ImageButton, window
+current_period = StringVar(value="Day")
 
 DATA_FILE = Path(__file__).resolve().parent.parent / "tasks.json"
 
@@ -31,17 +32,23 @@ def get_all_tasks():
 
 def save_tasks():                                                  #tasks saving 
     data = get_all_tasks()
-    data["Day"] = list(tasks_list.get(0, "end"))
+    data[current_period.get()] = list(tasks_list.get(0, "end"))
 
     with open(DATA_FILE, "w", encoding="utf-8") as file:
         json.dump(data, file, ensure_ascii=False)
 
 
-def load_tasks():                                                  #tasks loading when you open the app
-    data = get_all_tasks()
+def load_tasks():
+    tasks_list.delete(0, "end")
 
-    for task in data["Day"]:
+    data = get_all_tasks()
+    tasks = data.get(current_period.get(), [])
+
+    for task in tasks:
         tasks_list.insert("end", task)
+
+def change_period(selected_period):
+    load_tasks()
 
 def add_task():                                                   #function for be able to add new tasks 
     task = task_input.get().strip()
@@ -179,6 +186,32 @@ exit_button.place(
     y=16,
     width=55,
     height=25
+)
+
+period_menu = OptionMenu(
+    window,
+    current_period,
+    "Day",
+    "Week",
+    "Month",
+    "Year",
+    command=change_period
+)
+
+period_menu.configure(
+    font=("Inter", 16, "bold"),
+    fg="#374151",
+    bg="#FFFFFF",
+    activebackground="#FFFFFF",
+    highlightthickness=0,
+    bd=0
+)
+
+period_menu.place(
+    x=70,
+    y=160,
+    width=380,
+    height=46
 )
 
 window.mainloop()
